@@ -82,4 +82,4 @@
 
 - [x] 12.1 Run `php artisan test` — all tests pass
 - [x] 12.2 Run `npm run build` — frontend builds successfully
-- [ ] 12.3 Manual test: create tenant → login → change password → dashboard
+- [x] 12.3 Manual test: create tenant → login → change password → dashboard
