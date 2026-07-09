@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { useAdminAuthStore } from './stores/adminAuth'
+import { useTenantAuthStore } from './stores/tenantAuth'
 
 const route = useRoute()
-const adminAuthStore = useAdminAuthStore()
+const tenantAuthStore = useTenantAuthStore()
 
 const title = computed(() => {
   if (route.name === 'admin-login') {
@@ -20,10 +20,12 @@ const title = computed(() => {
     return 'Pantalla publica'
   }
 
+  if (tenantAuthStore.isAuthenticated && tenantAuthStore.tenantName) {
+    return tenantAuthStore.tenantName
+  }
+
   return 'Foundation'
 })
-
-const showAdminStatus = computed(() => adminAuthStore.isAuthenticated)
 </script>
 
 <template>
@@ -33,19 +35,6 @@ const showAdminStatus = computed(() => adminAuthStore.isAuthenticated)
         <p class="eyebrow">Turnero SaaS</p>
         <h1>{{ title }}</h1>
       </div>
-
-      <nav class="nav-links">
-        <RouterLink to="/">Foundation</RouterLink>
-        <RouterLink to="/admin/login">Admin</RouterLink>
-        <RouterLink to="/admin/tenants">Tenants</RouterLink>
-        <RouterLink to="/display">Pantalla publica</RouterLink>
-      </nav>
-
-      <Tag
-        v-if="showAdminStatus"
-        severity="contrast"
-        :value="`Admin: ${adminAuthStore.displayName}`"
-      />
     </header>
 
     <main class="main-content">

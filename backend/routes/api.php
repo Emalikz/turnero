@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Events\PublicDisplayUpdated;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\TenantAuthController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantUserController;
 use App\Support\ApiResponse;
 use App\Support\CurrentTenant;
 use Illuminate\Http\Request;
@@ -16,6 +18,26 @@ Route::prefix('v1/admin')->group(function (): void {
     Route::middleware(['auth:sanctum', 'platform.admin'])->group(function (): void {
         Route::get('/tenants', [TenantController::class, 'index']);
         Route::post('/tenants', [TenantController::class, 'store']);
+    });
+});
+
+// Tenant auth routes (public - no auth required)
+Route::prefix('v1/auth/tenant')->middleware('tenant')->group(function (): void {
+    Route::post('/login', [TenantAuthController::class, 'store']);
+    Route::post('/forgot-password', [TenantAuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [TenantAuthController::class, 'resetPassword']);
+});
+
+// Tenant protected routes (auth required)
+Route::prefix('v1/tenant')->middleware(['auth:sanctum', 'tenant', 'tenant.user'])->group(function (): void {
+    Route::get('/me', [TenantAuthController::class, 'show']);
+    Route::post('/change-password', [TenantAuthController::class, 'update']);
+
+    // Tenant admin routes
+    Route::middleware('tenant.admin')->group(function (): void {
+        Route::get('/users', [TenantUserController::class, 'index']);
+        Route::post('/users', [TenantUserController::class, 'store']);
+        Route::delete('/users/{id}', [TenantUserController::class, 'destroy']);
     });
 });
 

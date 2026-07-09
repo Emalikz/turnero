@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'platform.admin' => App\Http\Middleware\EnsurePlatformAdmin::class,
             'tenant' => App\Http\Middleware\ResolveTenant::class,
+            'tenant.user' => App\Http\Middleware\EnsureTenantUser::class,
+            'tenant.admin' => App\Http\Middleware\EnsureTenantAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

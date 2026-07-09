@@ -28,6 +28,7 @@ async function submit() {
 
     await router.push({ name: 'admin-tenants' })
   } catch (error: any) {
+    console.error('Error during admin login:', error)
     errorMessage.value = error.response?.data?.error?.message ?? 'No se pudo iniciar sesion.'
   } finally {
     loading.value = false

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Events\PublicDisplayUpdated;
+use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -32,13 +33,11 @@ final class HealthcheckTest extends TestCase
 
     public function test_healthcheck_resolves_tenant_context_from_header(): void
     {
-        DB::table('tenants')->insert([
+        Tenant::create([
             'name' => 'Acme Salud',
             'slug' => 'acme',
             'schema' => 'tenant_acme',
             'primary_domain' => 'acme.test',
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         $response = $this
@@ -66,16 +65,14 @@ final class HealthcheckTest extends TestCase
 
     public function test_demo_display_call_dispatches_a_broadcast_event(): void
     {
-        Event::fake();
-
-        DB::table('tenants')->insert([
+        Tenant::create([
             'name' => 'Acme Salud',
             'slug' => 'acme',
             'schema' => 'tenant_acme',
             'primary_domain' => 'acme.test',
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
+
+        Event::fake();
 
         $response = $this
             ->withHeader('X-Tenant', 'acme')

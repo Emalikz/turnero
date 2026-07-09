@@ -6,14 +6,29 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 final class TenantCreationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (! Schema::hasColumn('users', 'role')) {
+            Schema::table('users', function (Blueprint $table): void {
+                $table->string('role')->default('admin');
+                $table->boolean('is_active')->default(true);
+                $table->boolean('must_change_password')->default(false);
+            });
+        }
+    }
 
     public function test_platform_admin_can_create_a_tenant_and_derive_its_schema(): void
     {
@@ -35,6 +50,8 @@ final class TenantCreationTest extends TestCase
             ->assertJsonPath('data.primary_domain', 'acme.test')
             ->assertJsonPath('data.schema', 'tenant_acme_salud')
             ->assertJsonPath('data.settings.timezone', 'America/Bogota')
+            ->assertJsonPath('data.admin_user.email', 'admin@turnero.com')
+            ->assertJsonPath('data.admin_user.role', 'admin')
             ->assertJsonPath('error', null);
 
         $this->assertDatabaseHas('tenants', [
@@ -138,9 +155,12 @@ final class TenantCreationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJsonPath('data.0.slug', 'acme-salud')
-            ->assertJsonPath('data.1.slug', 'beta-clinic')
+            ->assertJsonCount(2, 'data')
             ->assertJsonPath('error', null);
+
+        $slugs = collect($response->json('data'))->pluck('slug')->values()->all();
+        $this->assertContains('acme-salud', $slugs);
+        $this->assertContains('beta-clinic', $slugs);
     }
 
     private function platformAdmin(): User

@@ -17,7 +17,10 @@ final class TenantController extends Controller
 
     public function store(CreateTenantRequest $request): JsonResponse
     {
-        $tenant = $this->tenantProvisioningService->create($request->validated());
+        $result = $this->tenantProvisioningService->create($request->validated());
+
+        /** @var \App\Models\Tenant $tenant */
+        $tenant = $result['tenant'];
 
         return ApiResponse::success([
             'id' => $tenant->id,
@@ -26,6 +29,8 @@ final class TenantController extends Controller
             'schema' => $tenant->schema,
             'primary_domain' => $tenant->primary_domain,
             'settings' => $tenant->settings,
+            'admin_user' => $result['admin_user'],
+            'temp_password' => $result['temp_password'],
         ], status: 201);
     }
 
