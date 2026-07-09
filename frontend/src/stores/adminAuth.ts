@@ -27,7 +27,7 @@ export const useAdminAuthStore = defineStore('admin-auth', () => {
   const user = ref<AdminUser | null>(persisted?.user ?? null)
 
   const isAuthenticated = computed(() => Boolean(token.value && user.value?.is_platform_admin))
-  const displayName = computed(() => user.value?.name ?? 'Sin sesion')
+  const displayName = computed(() => user.value?.name ?? 'Sin sesión')
 
   function setSession(payload: AdminSession) {
     token.value = payload.token

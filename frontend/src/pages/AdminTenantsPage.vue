@@ -18,6 +18,8 @@ const successMessage = ref<string | null>(null)
 const search = ref('')
 const fieldErrors = ref<Record<string, string[]>>({})
 const slugTouched = ref(false)
+const createdTenant = ref<Tenant | null>(null)
+const copiedUrl = ref(false)
 
 const form = reactive({
   name: '',
@@ -38,6 +40,12 @@ const filteredTenants = computed(() => {
       value.toLowerCase().includes(query),
     ),
   )
+})
+
+const tenantLoginUrl = computed(() => {
+  if (!createdTenant.value) return ''
+  const base = window.location.origin
+  return `${base}/t/${createdTenant.value.slug}/login`
 })
 
 watch(
@@ -68,6 +76,7 @@ async function createTenant() {
   errorMessage.value = null
   successMessage.value = null
   fieldErrors.value = {}
+  createdTenant.value = null
 
   try {
     const response = await http.post<ApiEnvelope<Tenant>>('/api/v1/admin/tenants', {
@@ -79,6 +88,7 @@ async function createTenant() {
       },
     })
 
+    createdTenant.value = response.data.data
     successMessage.value = `Tenant ${response.data.data.name} creado correctamente.`
     form.name = ''
     form.slug = ''
@@ -93,6 +103,24 @@ async function createTenant() {
   } finally {
     saving.value = false
   }
+}
+
+function copyLoginUrl() {
+  if (!tenantLoginUrl.value) return
+  navigator.clipboard.writeText(tenantLoginUrl.value)
+  copiedUrl.value = true
+  setTimeout(() => { copiedUrl.value = false }, 2000)
+}
+
+function goToTenantLogin() {
+  if (!createdTenant.value) return
+  router.push({ name: 'tenant-login', params: { slug: createdTenant.value.slug } })
+}
+
+function dismissSuccess() {
+  successMessage.value = null
+  createdTenant.value = null
+  copiedUrl.value = false
 }
 
 function onSlugInput(value: string | undefined) {
@@ -128,7 +156,7 @@ onMounted(loadTenants)
           </div>
           <div class="stack-sm">
             <Button label="Refrescar listado" icon="pi pi-refresh" outlined @click="loadTenants" />
-            <Button label="Cerrar sesion" icon="pi pi-sign-out" severity="secondary" outlined @click="logout" />
+            <Button label="Cerrar sesión" icon="pi pi-sign-out" severity="secondary" outlined @click="logout" />
           </div>
         </div>
       </template>
@@ -143,24 +171,57 @@ onMounted(loadTenants)
           </Message>
 
           <Message v-if="successMessage" severity="success" :closable="false">
-            {{ successMessage }}
+            <div class="success-content">
+              <span>{{ successMessage }}</span>
+              <Button
+                v-if="createdTenant"
+                icon="pi pi-times"
+                severity="secondary"
+                text
+                size="small"
+                @click="dismissSuccess"
+              />
+            </div>
           </Message>
+
+          <div v-if="createdTenant" class="follow-up-actions">
+            <p class="follow-up-label">Acciones rápidas</p>
+            <div class="follow-up-url">
+              <code class="url-text">{{ tenantLoginUrl }}</code>
+              <Button
+                :label="copiedUrl ? 'Copiado' : 'Copiar'"
+                :icon="copiedUrl ? 'pi pi-check' : 'pi pi-copy'"
+                severity="secondary"
+                outlined
+                size="small"
+                @click="copyLoginUrl"
+              />
+            </div>
+            <Button
+              label="Ir al login del tenant"
+              icon="pi pi-external-link"
+              severity="secondary"
+              outlined
+              size="small"
+              @click="goToTenantLogin"
+            />
+          </div>
 
           <div class="field-stack">
             <label for="tenant-name">Nombre comercial</label>
-            <InputText id="tenant-name" v-model="form.name" fluid />
+            <InputText id="tenant-name" v-model="form.name" fluid placeholder="Ej: Clínica Central" />
             <small v-if="fieldErrors.name?.[0]" class="field-error">{{ fieldErrors.name[0] }}</small>
           </div>
 
           <div class="field-stack">
             <label for="tenant-slug">Slug</label>
-            <InputText id="tenant-slug" :model-value="form.slug" fluid @update:model-value="onSlugInput($event)" />
+            <InputText id="tenant-slug" :model-value="form.slug" fluid @update:model-value="onSlugInput($event)" placeholder="clinica-central" />
             <small v-if="fieldErrors.slug?.[0]" class="field-error">{{ fieldErrors.slug[0] }}</small>
           </div>
 
           <div class="field-stack">
             <label for="tenant-domain">Dominio principal</label>
-            <InputText id="tenant-domain" v-model="form.primary_domain" fluid />
+            <InputText id="tenant-domain" v-model="form.primary_domain" fluid placeholder="clinica.example.com" />
             <small v-if="fieldErrors.primary_domain?.[0]" class="field-error">{{ fieldErrors.primary_domain[0] }}</small>
           </div>
 
@@ -194,8 +255,17 @@ onMounted(loadTenants)
 
             <template #empty>
               <div class="empty-state">
-                <i class="pi pi-building empty-icon" />
-                <p>Aun no hay tenants registrados.</p>
+                <div class="empty-state-icon">
+                  <i class="pi pi-building"></i>
+                </div>
+                <h3 class="empty-state-title">No hay tenants registrados</h3>
+                <p class="empty-state-desc">
+                  Los tenants son las organizaciones que usan Turnero.
+                  Cada tenant tiene su propia agenda, usuarios y configuración.
+                </p>
+                <p class="empty-state-hint">
+                  Usa el formulario de arriba para crear el primer tenant.
+                </p>
               </div>
             </template>
           </DataTable>

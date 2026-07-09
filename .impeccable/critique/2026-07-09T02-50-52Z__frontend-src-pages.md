@@ -26,7 +26,7 @@ slug: frontend-src-pages
 
 **Does this look AI-generated? Borderline.**
 
-The dark blue palette (#07111f → #0c1729 with #60a5fa accents) is stock AI dark-theme DNA. The body radial gradient (`radial-gradient(circle at top left, rgba(37, 99, 235, 0.35), transparent 32%)`) is the single most cliché AI dark-theme artifact — it decorates nothing. The nav pill treatment with semi-transparent backgrounds and border is frosted-glass-adjacent. The `Turnero SaaS` eyebrow label above every heading is the "eyebrow-every-section" pattern applied globally via shell.
+The dark blue palette (#07111f → #0c1729 with #60a5fa accents) is stock AI dark-theme DNA. The body radial gradient (`radial-gradient(circle at top left, rgba(37, 99, 235, 0.35), transparent 32%)`) is the single most cliché AI dark-theme artifact — it decorates nothing. The nav pill treatment with semi-transparent backgrounds and border is frosted-glass-adjacent. The `Turnero` eyebrow label above every heading is the "eyebrow-every-section" pattern applied globally via shell.
 
 What saves it: semantic utility classes (`stack-sm`, `field-stack`, `metric-row`) are intentional. Grids vary (3-col dashboard, 2-col admin, centered auth). No gradient text, no side-stripe borders, no glassmorphism, no numbered sections, no identical card grids. The restraint is real.
 

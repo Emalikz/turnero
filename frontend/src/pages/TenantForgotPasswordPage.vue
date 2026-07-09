@@ -27,7 +27,7 @@ async function submit() {
       headers: { 'X-Tenant': slug },
     })
 
-    successMessage.value = 'Si el email existe, recibiras un enlace para restablecer tu password.'
+    successMessage.value = 'Si el email existe, recibirás un enlace para restablecer tu contraseña.'
   } catch (error: any) {
     errorMessage.value = error.response?.data?.error?.message ?? 'No se pudo procesar la solicitud.'
   } finally {
@@ -39,8 +39,8 @@ async function submit() {
 <template>
   <section class="admin-auth-layout">
     <Card class="auth-card">
-      <template #title>Recuperar contrasena</template>
-      <template #subtitle>Ingresa tu email y te enviaremos un enlace para restablecer tu contrasena.</template>
+      <template #title>Recuperar contraseña</template>
+      <template #subtitle>Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña.</template>
       <template #content>
         <form class="stack-md" @submit.prevent="submit">
           <Message v-if="errorMessage" severity="error" :closable="false">
@@ -60,7 +60,7 @@ async function submit() {
 
           <div class="flex justify-content-center">
             <RouterLink :to="{ name: 'tenant-login', params: { slug } }" class="text-sm text-primary">
-              Volver al inicio de sesion
+              Volver al inicio de sesión
             </RouterLink>
           </div>
         </form>

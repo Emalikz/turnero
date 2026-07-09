@@ -28,8 +28,7 @@ async function submit() {
 
     await router.push({ name: 'admin-tenants' })
   } catch (error: any) {
-    console.error('Error during admin login:', error)
-    errorMessage.value = error.response?.data?.error?.message ?? 'No se pudo iniciar sesion.'
+    errorMessage.value = error.response?.data?.error?.message ?? 'No se pudo iniciar sesión.'
   } finally {
     loading.value = false
   }
@@ -37,33 +36,65 @@ async function submit() {
 </script>
 
 <template>
-  <section class="admin-auth-layout">
-    <Card class="auth-card">
-      <template #title>Acceso administrativo</template>
-      <template #subtitle>Panel central SaaS para alta de tenants y futuras configuraciones globales.</template>
-      <template #content>
-        <form class="stack-md" @submit.prevent="submit">
-          <Message v-if="errorMessage" severity="error" :closable="false">
-            {{ errorMessage }}
-          </Message>
+  <section class="login-layout">
+    <div class="login-brand">
+      <div class="login-brand-inner">
+        <span class="brand-chip">Turnero</span>
+        <h1 class="login-headline">Gestión de turnos para tu negocio</h1>
+        <p class="login-subheadline">
+          Administra sucursales, filas y llamados desde un solo panel.
+          Los clientes llegan, toman número y son llamados en orden.
+        </p>
 
-          <Message severity="secondary" :closable="false">
-            Este acceso es solo para administracion central del SaaS. Los tenants tendran su propio login mas adelante.
-          </Message>
+        <ul class="trust-list">
+          <li>
+            <i class="pi pi-shield"></i>
+            <span>Cifrado en tránsito y en reposo</span>
+          </li>
+          <li>
+            <i class="pi pi-verified"></i>
+            <span>Aislamiento de datos por tenant</span>
+          </li>
+          <li>
+            <i class="pi pi-clock"></i>
+            <span>Actualizaciones sin tiempo de inactividad</span>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-          <div class="field-stack">
-            <label for="email">Email</label>
-            <InputText id="email" v-model="form.email" type="email" fluid autocomplete="username" />
+    <div class="login-form-side">
+      <Card class="auth-card">
+        <template #title>
+          <div class="auth-card-header">
+            <h2>Acceso administrativo</h2>
+            <p class="muted">Panel central para alta y configuración de tenants</p>
           </div>
+        </template>
+        <template #content>
+          <form class="stack-md" @submit.prevent="submit">
+            <Message v-if="errorMessage" severity="error" :closable="false">
+              {{ errorMessage }}
+            </Message>
 
-          <div class="field-stack">
-            <label for="password">Contrasena</label>
-            <Password id="password" v-model="form.password" fluid toggle-mask :feedback="false" autocomplete="current-password" />
-          </div>
+            <div class="field-stack">
+              <label for="email">Email</label>
+              <InputText id="email" v-model="form.email" type="email" fluid autocomplete="username" placeholder="admin@turnero.app" />
+            </div>
 
-          <Button type="submit" label="Entrar al panel" icon="pi pi-sign-in" :loading="loading" fluid />
-        </form>
-      </template>
-    </Card>
+            <div class="field-stack">
+              <label for="password">Contraseña</label>
+              <Password id="password" v-model="form.password" fluid toggle-mask :feedback="false" autocomplete="current-password" placeholder="••••••••" />
+            </div>
+
+            <Button type="submit" label="Entrar al panel" icon="pi pi-sign-in" :loading="loading" fluid />
+          </form>
+        </template>
+      </Card>
+
+      <p class="login-footer muted">
+        ¿Necesitas acceso? Contacta al administrador del sistema.
+      </p>
+    </div>
   </section>
 </template>

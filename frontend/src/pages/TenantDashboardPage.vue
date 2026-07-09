@@ -22,7 +22,7 @@ function logout() {
       <template #content>
         <div class="stack-md">
           <Message severity="info" :closable="false">
-            Esta es tu area de trabajo. Aqui gestiras tus turnos y agenda.
+            Esta es tu área de trabajo. Aquí gestionarás tus turnos y agenda.
           </Message>
 
           <div class="metric-row">
@@ -45,7 +45,7 @@ function logout() {
             <strong>{{ tenantAuthStore.user?.role }}</strong>
           </div>
 
-          <Button label="Cerrar sesion" icon="pi pi-sign-out" severity="secondary" outlined @click="logout" />
+          <Button label="Cerrar sesión" icon="pi pi-sign-out" severity="secondary" outlined @click="logout" />
         </div>
       </template>
     </Card>

@@ -29,7 +29,7 @@ onMounted(async () => {
     slugValid.value = true
   } catch {
     slugValid.value = false
-    errorMessage.value = 'El enlace no es valido o el tenant no existe.'
+    errorMessage.value = 'El enlace no es válido o el tenant no existe.'
   }
 })
 
@@ -51,8 +51,7 @@ async function submit() {
       await router.push({ name: 'tenant-dashboard', params: { slug } })
     }
   } catch (error: any) {
-    console.error('Error during tenant login:', error)
-    errorMessage.value = error.response?.data?.error?.message ?? 'No se pudo iniciar sesion.'
+    errorMessage.value = error.response?.data?.error?.message ?? 'No se pudo iniciar sesión.'
   } finally {
     loading.value = false
   }
@@ -60,37 +59,73 @@ async function submit() {
 </script>
 
 <template>
-  <section class="admin-auth-layout">
-    <Card class="auth-card">
-      <template #title>Acceso al tenant</template>
-      <template #subtitle>Inicia sesion para gestionar tu agenda.</template>
-      <template #content>
-        <form class="stack-md" @submit.prevent="submit">
-          <Message v-if="errorMessage" severity="error" :closable="false">
-            {{ errorMessage }}
-          </Message>
+  <section class="login-layout login-layout--tenant">
+    <div class="login-brand login-brand--tenant">
+      <div class="login-brand-inner">
+        <span class="brand-chip">Turnero</span>
+        <h1 class="login-headline">Tu agenda, en orden</h1>
+        <p class="login-subheadline">
+          Gestiona turnos, llama a clientes y mantén tu fila organizada.
+          Todo desde un solo lugar, sin complicaciones.
+        </p>
 
-          <template v-if="slugValid !== false">
-            <div class="field-stack">
-              <label for="email">Email</label>
-              <InputText id="email" v-model="form.email" type="email" fluid autocomplete="username" />
+        <ul class="trust-list">
+          <li>
+            <i class="pi pi-shield"></i>
+            <span>Tus datos están protegidos y aislados</span>
+          </li>
+          <li>
+            <i class="pi pi-lock"></i>
+            <span>Conexión segura con cifrado SSL</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="login-form-side">
+      <Card class="auth-card">
+        <template #title>
+          <div class="auth-card-header">
+            <div class="tenant-badge">
+              <i class="pi pi-building"></i>
+              <span>{{ slug }}</span>
             </div>
+            <h2>Acceso al tenant</h2>
+            <p class="muted">Inicia sesión para gestionar tu agenda</p>
+          </div>
+        </template>
+        <template #content>
+          <form class="stack-md" @submit.prevent="submit">
+            <Message v-if="errorMessage" severity="error" :closable="false">
+              {{ errorMessage }}
+            </Message>
 
-            <div class="field-stack">
-              <label for="password">Contrasena</label>
-              <Password id="password" v-model="form.password" fluid toggle-mask :feedback="false" autocomplete="current-password" />
-            </div>
+            <template v-if="slugValid !== false">
+              <div class="field-stack">
+                <label for="email">Email</label>
+                <InputText id="email" v-model="form.email" type="email" fluid autocomplete="username" placeholder="usuario@empresa.com" />
+              </div>
 
-            <Button type="submit" label="Entrar" icon="pi pi-sign-in" :loading="loading" fluid />
+              <div class="field-stack">
+                <label for="password">Contraseña</label>
+                <Password id="password" v-model="form.password" fluid toggle-mask :feedback="false" autocomplete="current-password" placeholder="••••••••" />
+              </div>
 
-            <div class="flex justify-content-center">
-              <RouterLink :to="{ name: 'tenant-forgot-password', params: { slug } }" class="text-sm text-primary">
-                Olvidaste tu contrasena?
-              </RouterLink>
-            </div>
-          </template>
-        </form>
-      </template>
-    </Card>
+              <Button type="submit" label="Entrar" icon="pi pi-sign-in" :loading="loading" fluid />
+
+              <div class="flex justify-content-center">
+                <RouterLink :to="{ name: 'tenant-forgot-password', params: { slug } }" class="text-sm text-primary">
+                  ¿Olvidaste tu contraseña?
+                </RouterLink>
+              </div>
+            </template>
+          </form>
+        </template>
+      </Card>
+
+      <p class="login-footer muted">
+        ¿No tienes acceso? Solicítalo a tu administrador.
+      </p>
+    </div>
   </section>
 </template>

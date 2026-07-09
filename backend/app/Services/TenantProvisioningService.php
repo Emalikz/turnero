@@ -34,7 +34,7 @@ final class TenantProvisioningService
                 $this->provisionPostgresTenant($tenant);
             }
 
-            $tempPassword = Str::random(12);
+            $tempPassword = $slug . '@password';
             $adminUser = $this->createDefaultAdmin(
                 schema: $schema,
                 name: 'Admin',

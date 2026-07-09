@@ -24,7 +24,7 @@ const timestamp = ref<string | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const broadcasting = ref(false)
-const broadcastMessage = ref<string | null>(null)
+const broadcastResult = ref<{ severity: 'success' | 'error'; text: string } | null>(null)
 
 async function loadHealth() {
   loading.value = true
@@ -36,7 +36,7 @@ async function loadHealth() {
     health.value = response.data.data
     timestamp.value = response.data.meta.timestamp
   } catch {
-    error.value = 'No se pudo consultar el backend. Revisa que Laravel este corriendo en el puerto 8000.'
+    error.value = 'No se pudo consultar el backend. Revisa que Laravel esté corriendo en el puerto 8000.'
   } finally {
     loading.value = false
   }
@@ -46,18 +46,24 @@ onMounted(loadHealth)
 
 async function triggerDisplayCall() {
   broadcasting.value = true
-  broadcastMessage.value = null
+  broadcastResult.value = null
 
   try {
     const response = await http.post('/api/v1/display/demo-call', {
       turn_code: 'A-101',
-      desk: 'Modulo 4',
+      desk: 'Módulo 4',
       message: 'Paciente pasar a ventanilla.',
     })
 
-    broadcastMessage.value = `Evento enviado al canal ${response.data.data.channel}`
+    broadcastResult.value = {
+      severity: 'success',
+      text: `Evento enviado al canal ${response.data.data.channel}`,
+    }
   } catch {
-    broadcastMessage.value = 'No se pudo emitir el evento demo.'
+    broadcastResult.value = {
+      severity: 'error',
+      text: 'No se pudo emitir el evento demo.',
+    }
   } finally {
     broadcasting.value = false
   }
@@ -67,10 +73,11 @@ async function triggerDisplayCall() {
 <template>
   <section class="dashboard-grid">
     <Card>
-      <template #title>Foundation listo</template>
+      <template #title>Bienvenido a Turnero</template>
       <template #content>
         <p class="muted">
-          Base SaaS con Laravel 12, Vue 3, PrimeVue, Redis, Reverb y tenancy por schema.
+          Gestión de colas y turnos para sucursales. Configura tus módulos, genera turnos y
+          proyecta llamados en pantalla pública.
         </p>
       </template>
     </Card>
@@ -90,7 +97,7 @@ async function triggerDisplayCall() {
         <div v-else class="stack-sm">
           <Tag severity="success" :value="health?.status.toUpperCase()" />
           <div class="metric-row">
-            <span class="metric-label">Aplicacion</span>
+            <span class="metric-label">Aplicación</span>
             <strong>{{ health?.app }}</strong>
           </div>
           <div class="metric-row">
@@ -98,7 +105,7 @@ async function triggerDisplayCall() {
             <strong>{{ health?.tenant?.name ?? 'Sin tenant' }}</strong>
           </div>
           <div class="metric-row">
-            <span class="metric-label">Ultimo ping</span>
+            <span class="metric-label">Último ping</span>
             <strong>{{ timestamp }}</strong>
           </div>
           <Button label="Refrescar" icon="pi pi-refresh" outlined @click="loadHealth" />
@@ -107,12 +114,12 @@ async function triggerDisplayCall() {
     </Card>
 
     <Card>
-      <template #title>Proximos modulos</template>
+      <template #title>Próximos módulos</template>
       <template #content>
         <ul class="module-list">
-          <li>Autenticacion con Sanctum y SSO</li>
+          <li>Autenticación con Sanctum y SSO</li>
           <li>Gestor de colas y turnos</li>
-          <li>Page builder de pantalla publica</li>
+          <li>Page builder de pantalla pública</li>
           <li>Dashboard operativo multi-sucursal</li>
         </ul>
 
@@ -124,7 +131,13 @@ async function triggerDisplayCall() {
             @click="triggerDisplayCall"
           />
 
-          <small v-if="broadcastMessage" class="muted">{{ broadcastMessage }}</small>
+          <Message
+            v-if="broadcastResult"
+            :severity="broadcastResult.severity"
+            :closable="false"
+          >
+            {{ broadcastResult.text }}
+          </Message>
         </div>
       </template>
     </Card>

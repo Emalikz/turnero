@@ -1,4 +1,4 @@
-# Turnero SaaS
+# Turnero
 
 Aplicacion SaaS multitenant para gestion de turnos, citas y pantallas publicas.
 

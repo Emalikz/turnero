@@ -17,7 +17,7 @@ export const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'foundation',
+      name: 'dashboard',
       component: DashboardPage,
     },
     {

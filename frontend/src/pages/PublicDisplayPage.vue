@@ -16,6 +16,7 @@ type DisplayEvent = {
 const route = useRoute()
 const activeTurn = ref<DisplayEvent | null>(null)
 const status = ref('Esperando eventos de Reverb...')
+const connected = ref(false)
 
 const tenantSlug = computed(() => {
   const tenant = route.query.tenant
@@ -28,7 +29,8 @@ const channelName = computed(() => `public-display.${tenantSlug.value}`)
 function subscribe() {
   echo.channel(channelName.value).listen('.PublicDisplayUpdated', (event: DisplayEvent) => {
     activeTurn.value = event
-    status.value = `Ultimo evento recibido en ${event.timestamp}`
+    connected.value = true
+    status.value = `Último evento recibido en ${event.timestamp}`
   })
 }
 
@@ -43,27 +45,54 @@ onBeforeUnmount(unsubscribe)
 <template>
   <section class="display-shell">
     <Card>
-      <template #title>Pantalla publica</template>
+      <template #title>Pantalla pública</template>
       <template #content>
-        <p class="muted">
-          Escuchando el canal <strong>{{ channelName }}</strong>. Puedes abrir
-          <code>/display?tenant=acme</code> para un tenant concreto.
-        </p>
-
-        <p class="muted">{{ status }}</p>
+        <div class="display-meta">
+          <div class="display-meta-item">
+            <span class="metric-label">Canal</span>
+            <strong>{{ channelName }}</strong>
+          </div>
+          <div class="display-meta-item">
+            <span class="metric-label">Estado</span>
+            <span class="display-status" :class="{ 'display-status--active': connected }">
+              <i class="pi" :class="connected ? 'pi-circle-fill' : 'pi-circle'"></i>
+              {{ connected ? 'Conectado' : 'Escuchando' }}
+            </span>
+          </div>
+          <div class="display-meta-item">
+            <span class="metric-label">Último evento</span>
+            <strong>{{ status }}</strong>
+          </div>
+        </div>
 
         <div class="display-panels">
           <Panel header="Turno llamando">
-            <h2 class="turn-code">{{ activeTurn?.turn_code ?? 'Sin llamados' }}</h2>
-            <p class="muted">{{ activeTurn?.desk ?? 'Esperando modulo' }}</p>
-            <p>{{ activeTurn?.message ?? 'Todavia no se recibieron eventos.' }}</p>
+            <template v-if="activeTurn">
+              <h2 class="turn-code">{{ activeTurn.turn_code }}</h2>
+              <p class="turn-desk">{{ activeTurn.desk }}</p>
+              <p v-if="activeTurn.message" class="turn-message">{{ activeTurn.message }}</p>
+            </template>
+            <template v-else>
+              <div class="display-idle">
+                <div class="display-idle-icon">
+                  <i class="pi pi-bell"></i>
+                </div>
+                <h3 class="display-idle-title">Sin llamados activos</h3>
+                <p class="display-idle-desc">
+                  Cuando se llame a un turno, aparecerá aquí con el código, módulo y mensaje correspondiente.
+                </p>
+                <p class="display-idle-hint">
+                  Abre <code>/display?tenant=slug</code> para ver un tenant específico.
+                </p>
+              </div>
+            </template>
           </Panel>
 
           <Panel header="Canal actual">
             <ul class="module-list compact">
               <li><strong>Tenant:</strong> {{ tenantSlug }}</li>
               <li><strong>Canal:</strong> {{ channelName }}</li>
-              <li><strong>Estado:</strong> {{ activeTurn ? 'Conectado y recibiendo' : 'Escuchando' }}</li>
+              <li><strong>Estado:</strong> {{ connected ? 'Conectado y recibiendo' : 'Escuchando' }}</li>
             </ul>
           </Panel>
         </div>

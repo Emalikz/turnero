@@ -30,7 +30,7 @@ export const useTenantAuthStore = defineStore('tenant-auth', () => {
 
   const isAuthenticated = computed(() => Boolean(token.value && user.value))
   const mustChangePassword = computed(() => user.value?.must_change_password ?? false)
-  const displayName = computed(() => user.value?.name ?? 'Sin sesion')
+  const displayName = computed(() => user.value?.name ?? 'Sin sesión')
 
   function setSession(payload: TenantSession) {
     token.value = payload.token
